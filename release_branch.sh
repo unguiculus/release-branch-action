@@ -22,7 +22,6 @@ cat << EOF
 Usage: $(basename "$0") <options>
 
     -h, --help                Display help
-    -r, --remote              The name of the remote to push the tag to (default: origin)
     -a, --paths-to-add        A list of comma-separated paths to add to Git for the tag
     -e, --paths-to-exclude    A list of comma-separated paths to exclude from Git for the tag
     -s, --skip-push           Skip pushing the tag
@@ -31,7 +30,6 @@ EOF
 }
 
 main() {
-    local remote=origin
     local paths_to_add=
     local paths_to_exclude=
     local skip_push=
@@ -42,16 +40,6 @@ main() {
             -h|--help)
                 show_help
                 exit
-                ;;
-            -r|--remote)
-                if [[ -n "${2:-}" ]]; then
-                    remote="$2"
-                    shift
-                else
-                    echo "ERROR: '--remote' cannot be empty." >&2
-                    show_help
-                    exit 1
-                fi
                 ;;
             -a|--paths-to-add)
                 if [[ -n "${2:-}" ]]; then
@@ -132,7 +120,13 @@ main() {
 
     if [[ -z "$skip_push" ]]; then
         echo "Pushing branch '$release_branch'..."
-        git push "$remote" "$release_branch"
+
+        if [[ -n "${GITHUB_TOKEN:-}" ]] && [[ -n "${GITHUB_REPOSITORY:-}" ]]; then
+            repo_url="https://x-access-token:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git"
+            git push "$repo_url" "$release_branch"
+        else
+            git push origin "$release_branch"
+        fi
     fi
 }
 

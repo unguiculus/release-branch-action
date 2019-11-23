@@ -7,6 +7,8 @@ description: |
   TypeScript to be tested in other projects whenever a branch is built.
 author: unguiculus
 inputs:
+  token:
+    description: The GitHub token
   paths-to-add:
     description: A list of comma-separated paths to add to Git for the tag
   paths-to-remove:
