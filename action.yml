@@ -1,0 +1,25 @@
+name: GitHub Release Branch Action
+description: |
+  GitHub Action that creates a corresponding release branch prefixed with 'release/'
+  for the current branch. The current branch is first merged to this branch, then the
+  action is built, the result is committed considering files that should or should not
+  be part of the release. This allows GitHub Actions that are base on Javascript or
+  TypeScript to be tested in other projects whenever a branch is built.
+author: unguiculus
+inputs:
+  paths-to-add:
+    description: A list of comma-separated paths to add to Git for the tag
+  paths-to-remove:
+    description: A list of comma-separated paths to exclude from Git
+  build-cmd:
+    description: The build command to run, e. g 'npm install && nm run build'
+runs:
+  using: docker
+  image: Dockerfile
+  args:
+    - --paths-to-add
+    - ${{ inputs.paths-to-add }}
+    - --paths-to-remove
+    - ${{ inputs.paths-to-remove }}
+    - --build-cmd
+    - ${{ inputs.build-cmd }}
