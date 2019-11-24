@@ -16,7 +16,6 @@
 
 set -o errexit
 set -o nounset
-set -x
 
 show_help() {
 cat << EOF
