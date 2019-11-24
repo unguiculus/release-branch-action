@@ -7,7 +7,7 @@ RUN apk --update --no-cache add \
     ca-certificates \
     git
 
+COPY entrypoint.sh /entrypoint.sh
 COPY release_branch.sh /release_branch.sh
 
-ENTRYPOINT ["/release_branch.sh"]
-CMD ["--help"]
+ENTRYPOINT ["/entrypoint.sh"]

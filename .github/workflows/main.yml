@@ -1,0 +1,23 @@
+name: Test
+
+on:
+  push:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Configure
+        run: |
+          git config --local user.name "$GITHUB_ACTOR"
+          git config --local user.email noreply@github.com
+      - name: Release branch
+        uses: ./
+        with:
+          build_cmd: touch test-file
+          paths_to_add: test-file
+          paths_to_remove: test-dir
+          token: ${{ secrets.GITHUB_TOKEN }}
