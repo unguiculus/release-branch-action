@@ -16,6 +16,7 @@
 
 set -o errexit
 set -o nounset
+set -x
 
 show_help() {
 cat << EOF
@@ -23,7 +24,7 @@ Usage: $(basename "$0") <options>
 
     -h, --help                Display help
     -a, --paths-to-add        A list of comma-separated paths to add to Git for the tag
-    -e, --paths-to-exclude    A list of comma-separated paths to exclude from Git for the tag
+    -r, --paths-to-remove    A list of comma-separated paths to remove from Git for the tag
     -s, --skip-push           Skip pushing the tag
     -b, --build-cmd           The build command to run
 EOF
@@ -31,7 +32,7 @@ EOF
 
 main() {
     local paths_to_add=
-    local paths_to_exclude=
+    local paths_to_remove=
     local skip_push=
     local build_cmd=
 
@@ -51,12 +52,12 @@ main() {
                     exit 1
                 fi
                 ;;
-            -e|--paths-to-exclude)
+            -r|--paths-to-remove)
                 if [[ -n "${2:-}" ]]; then
-                    paths_to_exclude="$2"
+                    paths_to_remove="$2"
                     shift
                 else
-                    echo "ERROR: '--paths-to-exclude' cannot be empty." >&2
+                    echo "ERROR: '--paths-to-remove' cannot be empty." >&2
                     show_help
                     exit 1
                 fi
@@ -84,14 +85,16 @@ main() {
 
     local current_branch
     current_branch=$(git rev-parse --abbrev-ref HEAD)
-
+    echo "$current_branch"
     local current_ref
     current_ref=$(git rev-parse --short HEAD)
 
     local release_branch="release/$current_branch"
 
     git checkout -b "$release_branch" 2> /dev/null || git checkout "$release_branch"
-    trap 'git switch -' EXIT
+
+    # shellcheck disable=SC2064
+    trap "git checkout $current_branch" EXIT
 
     git read-tree -u --reset "$current_branch"
 
@@ -104,7 +107,7 @@ main() {
     bash -c "$build_cmd"
 
     export IFS=','
-    for path in $paths_to_exclude; do
+    for path in $paths_to_remove; do
         echo "Removing path from Git: $path"
         git rm -r -- "$path"
     done
