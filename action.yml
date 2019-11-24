@@ -16,5 +16,5 @@ inputs:
   build_cmd:
     description: The build command to run, e. g 'npm install && nm run build'
 runs:
-  using: docker
-  image: Dockerfile
+  using: "node12"
+  main: main.js
